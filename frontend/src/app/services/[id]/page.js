@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { API_URL } from '@/lib/api';
+import { parseCookies } from 'nookies';
 
 
 const ServiceDetailsPage = () => {
@@ -17,6 +18,10 @@ const ServiceDetailsPage = () => {
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('default'); // 'default', 'booking', 'chat'
     const [paymentMethod, setPaymentMethod] = useState('card');
+    const [bookingDate, setBookingDate] = useState('');
+    const [bookingTime, setBookingTime] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isBooked, setIsBooked] = useState(false);
     const [chatMessage, setChatMessage] = useState('');
     const [messages, setMessages] = useState([
         { id: 1, text: "Hi there! How can I help you today?", sender: 'pro' }
@@ -26,15 +31,48 @@ const ServiceDetailsPage = () => {
         setMounted(true);
     }, []);
 
-    const handleBooking = () => {
-        toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
-            loading: 'Processing payment...',
-            success: () => {
+    const handleBooking = async () => {
+        const cookies = parseCookies();
+        if (!cookies.auth_token) {
+            toast.error("Please login to book a service");
+            router.push('/login');
+            return;
+        }
+
+        if (!bookingDate || !bookingTime) {
+            toast.error("Please select a date and time");
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            const res = await fetch(`${API_URL}/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer: cookies.user_name || 'Normal User',
+                    provider: service.provider || 'Sparky Solutions',
+                    service: service.name,
+                    date: `${bookingDate} at ${bookingTime}`,
+                    amount: service.price,
+                    paymentMethod: paymentMethod
+                })
+            });
+
+            if (res.ok) {
+                toast.success('Booking confirmed successfully!');
+                setIsBooked(true);
                 setViewMode('default');
-                return 'Booking confirmed successfully!';
-            },
-            error: 'Payment failed'
-        });
+            } else {
+                const data = await res.json();
+                toast.error(data.message || 'Payment failed');
+            }
+        } catch (error) {
+            console.error("Booking error:", error);
+            toast.error('Something went wrong. Please try again.');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleSendMessage = (e) => {
@@ -161,10 +199,19 @@ const ServiceDetailsPage = () => {
 
                                     <div className="space-y-4">
                                         <button
-                                            onClick={() => setViewMode('booking')}
-                                            className="w-full py-5 gradient-bg rounded-2xl text-white font-bold text-lg hover-glow transition-all active:scale-[0.98]"
+                                            onClick={() => {
+                                                const cookies = parseCookies();
+                                                if (!cookies.auth_token) {
+                                                    toast.error("Please login to book a service");
+                                                    router.push('/login');
+                                                    return;
+                                                }
+                                                setViewMode('booking');
+                                            }}
+                                            disabled={isBooked}
+                                            className={`w-full py-5 gradient-bg rounded-2xl text-white font-bold text-lg hover-glow transition-all active:scale-[0.98] ${isBooked ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                                         >
-                                            Book Appointment
+                                            {isBooked ? 'Already Booked' : 'Book Appointment'}
                                         </button>
                                         <button
                                             onClick={() => setViewMode('chat')}
@@ -197,14 +244,24 @@ const ServiceDetailsPage = () => {
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Date</label>
                                             <div className="relative">
                                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
-                                                <input type="date" className="w-full pl-12 pr-4 py-3 glass rounded-xl border-white/5 focus:ring-2 focus:ring-blue-500 outline-none text-white text-sm" />
+                                                <input
+                                                    type="date"
+                                                    className="w-full pl-12 pr-4 py-3 glass rounded-xl border-white/5 focus:ring-2 focus:ring-blue-500 outline-none text-white text-sm"
+                                                    value={bookingDate}
+                                                    onChange={(e) => setBookingDate(e.target.value)}
+                                                />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Time</label>
                                             <div className="relative">
                                                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
-                                                <input type="time" className="w-full pl-12 pr-4 py-3 glass rounded-xl border-white/5 focus:ring-2 focus:ring-blue-500 outline-none text-white text-sm" />
+                                                <input
+                                                    type="time"
+                                                    className="w-full pl-12 pr-4 py-3 glass rounded-xl border-white/5 focus:ring-2 focus:ring-blue-500 outline-none text-white text-sm"
+                                                    value={bookingTime}
+                                                    onChange={(e) => setBookingTime(e.target.value)}
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -241,9 +298,10 @@ const ServiceDetailsPage = () => {
                                         </div>
                                         <button
                                             onClick={handleBooking}
-                                            className="w-full py-4 gradient-bg rounded-xl text-white font-bold hover-glow transition-all"
+                                            disabled={isProcessing || isBooked}
+                                            className="w-full py-4 gradient-bg rounded-xl text-white font-bold hover-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
                                         >
-                                            Confirm & Pay
+                                            {isProcessing ? 'Processing...' : isBooked ? 'Paid' : 'Confirm & Pay'}
                                         </button>
                                     </div>
                                 </div>

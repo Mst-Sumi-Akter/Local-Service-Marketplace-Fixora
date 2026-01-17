@@ -75,6 +75,29 @@ userSchema.set('toJSON', {
 
 const User = mongoose.model('User', userSchema);
 
+// Booking Schema
+const bookingSchema = new mongoose.Schema({
+    customer: { type: String, required: true },
+    provider: { type: String, required: true },
+    service: { type: String, required: true },
+    date: { type: String, required: true },
+    amount: { type: Number, required: true },
+    status: { type: String, default: 'Pending' },
+    paymentStatus: { type: String, default: 'Paid' },
+    paymentMethod: { type: String, required: true }
+}, { timestamps: true, versionKey: false });
+
+bookingSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+    }
+});
+
+const Booking = mongoose.model('Booking', bookingSchema);
+
 // Sample Data (Bookings kept as mock for now, users logic moved to DB)
 let bookings = [
     { id: 101, customer: 'John Doe', provider: 'Sparky Solutions', service: 'Electrician', date: '2023-10-25', amount: 1500, status: 'Completed', paymentStatus: 'Paid' },
@@ -289,16 +312,51 @@ app.get('/provider/stats', (req, res) => {
 });
 
 // 4. Dashboard Stats - User
-app.get('/user/stats', (req, res) => {
-    const customerName = 'John Doe';
-    const userBookings = bookings.filter(b => b.customer === customerName);
+app.get('/user/stats', async (req, res) => {
+    const customerName = req.query.name || 'Normal User';
 
-    const stats = {
-        totalBookings: userBookings.length,
-        pendingBookings: userBookings.filter(b => b.status === 'Pending').length,
-        bookingHistory: userBookings.reverse()
-    };
-    res.json(stats);
+    try {
+        const dbBookings = await Booking.find({ customer: customerName });
+        const mockBookings = bookings.filter(b => b.customer === customerName);
+
+        const allBookings = [...dbBookings, ...mockBookings];
+
+        const stats = {
+            totalBookings: allBookings.length,
+            pendingBookings: allBookings.filter(b => b.status === 'Pending').length,
+            bookingHistory: [...allBookings].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+        };
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// 5. Create Booking
+app.post('/bookings', async (req, res) => {
+    const { customer, provider, service, date, amount, paymentMethod } = req.body;
+
+    if (!customer || !provider || !service || !date || !amount || !paymentMethod) {
+        return res.status(400).json({ message: "Missing required booking details" });
+    }
+
+    try {
+        const newBooking = new Booking({
+            customer,
+            provider,
+            service,
+            date,
+            amount: parseFloat(amount),
+            paymentMethod,
+            status: 'Pending',
+            paymentStatus: 'Paid'
+        });
+
+        const savedBooking = await newBooking.save();
+        res.status(201).json(savedBooking);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
 app.listen(PORT, () => {

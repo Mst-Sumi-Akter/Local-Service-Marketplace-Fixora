@@ -1,11 +1,39 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Crown, Check, Star, Zap, ShieldCheck, TrendingUp, Gem, Award } from 'lucide-react';
 import { toast } from 'sonner';
+import { parseCookies } from 'nookies';
 import Loading from '@/components/Loading';
 
 const ProMembershipPage = () => {
+    const router = useRouter();
+    const [isUpgrading, setIsUpgrading] = useState(false);
+    const [isPro, setIsPro] = useState(false);
+
+    const handleUpgrade = () => {
+        const cookies = parseCookies();
+        if (!cookies.auth_token) {
+            toast.error("Please login to upgrade to Pro");
+            router.push('/login');
+            return;
+        }
+
+        setIsUpgrading(true);
+        toast.promise(new Promise((resolve) => {
+            setTimeout(() => {
+                setIsUpgrading(false);
+                setIsPro(true);
+                resolve();
+            }, 2000);
+        }), {
+            loading: 'Upgrading to Pro...',
+            success: 'Successfully upgraded to Pro!',
+            error: 'Upgrade failed'
+        });
+    };
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f]">
             {/* Ambient Background */}
@@ -130,14 +158,15 @@ const ProMembershipPage = () => {
                             </div>
 
                             <button
-                                onClick={() => toast.success("Redirecting to payment gateway...")}
-                                className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all relative overflow-hidden group"
+                                onClick={handleUpgrade}
+                                disabled={isUpgrading || isPro}
+                                className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-2">
-                                    Upgrade to Pro
-                                    <Zap className="w-5 h-5 group-hover:fill-current transition-all" />
+                                    {isUpgrading ? 'Upgrading...' : isPro ? 'Current Plan' : 'Upgrade to Pro'}
+                                    {!isPro && <Zap className="w-5 h-5 group-hover:fill-current transition-all" />}
                                 </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                {!isPro && <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>}
                             </button>
 
                             <p className="text-center text-xs text-slate-500 mt-6 flex items-center justify-center gap-2">
