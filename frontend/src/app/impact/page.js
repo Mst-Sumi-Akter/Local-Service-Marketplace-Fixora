@@ -6,6 +6,14 @@ import { toast } from 'sonner';
 import Loading from '@/components/Loading';
 
 const ImpactPage = () => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f]">
             {/* Background Effects */}

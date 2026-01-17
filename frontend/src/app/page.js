@@ -10,33 +10,37 @@ import {
 
 import { toast } from 'sonner';
 
+const slides = [
+    {
+        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2000&auto=format&fit=crop",
+        title: "Expert Plumbing",
+        desc: "24/7 emergency support for leaks, clogs, and full installations."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=2000&auto=format&fit=crop",
+        title: "Expert Electricians",
+        desc: "Professional wiring and electrical repairs for your home."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2000&auto=format&fit=crop",
+        title: "Professional Painting",
+        desc: "Transform your space with our expert color consultants and painters."
+    }
+];
+
 const LandingPage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-
-    const slides = [
-        {
-            image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2000&auto=format&fit=crop",
-            title: "Expert Plumbing",
-            desc: "24/7 emergency support for leaks, clogs, and full installations."
-        },
-        {
-            image: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=2000&auto=format&fit=crop",
-            title: "Expert Electricians",
-            desc: "Professional wiring and electrical repairs for your home."
-        },
-        {
-            image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2000&auto=format&fit=crop",
-            title: "Professional Painting",
-            desc: "Transform your space with our expert color consultants and painters."
-        }
-    ];
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 5000);
         return () => clearInterval(timer);
     }, []);
+
+    if (!mounted) return <div className="min-h-screen bg-slate-950" />;
 
     return (
         <div className="flex flex-col">
@@ -54,53 +58,57 @@ const LandingPage = () => {
                             className="absolute inset-0"
                         >
                             <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950 z-10"></div>
-                            <img
-                                src={slides[currentSlide].image}
-                                alt="Service background"
-                                className="w-full h-full object-cover"
-                            />
+                            {slides[currentSlide] && (
+                                <img
+                                    src={slides[currentSlide].image}
+                                    alt="Service background"
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                         </motion.div>
                     </AnimatePresence>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 text-center">
-                    <motion.div
-                        key={currentSlide + '-content'}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <span className="px-4 py-2 rounded-full glass text-blue-400 text-sm font-medium mb-6 inline-block">
-                            #{currentSlide + 1} Local Experts in {slides[currentSlide].title}
-                        </span>
-                        <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight text-white">
-                            Find the Perfect <br />
-                            <span className="gradient-text">Local Service</span> Ready to Help
-                        </h1>
-                        <p className="text-xl text-slate-200 shadow-sm max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-                            {slides[currentSlide].desc} Fixora connects you with verified experts for everything you need.
-                        </p>
+                    {slides[currentSlide] && (
+                        <motion.div
+                            key={currentSlide + '-content'}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <span className="px-4 py-2 rounded-full glass text-blue-400 text-sm font-medium mb-6 inline-block">
+                                #{currentSlide + 1} Local Experts in {slides[currentSlide].title}
+                            </span>
+                            <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight text-white">
+                                Find the Perfect <br />
+                                <span className="gradient-text">Local Service</span> Ready to Help
+                            </h1>
+                            <p className="text-xl text-slate-200 shadow-sm max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+                                {slides[currentSlide].desc} Fixora connects you with verified experts for everything you need.
+                            </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link href="/services" className="px-8 py-4 gradient-bg rounded-xl font-bold text-white hover-glow flex items-center gap-2 transition-all w-full sm:w-auto shadow-xl">
-                                Browse Services <ArrowRight className="w-5 h-5" />
-                            </Link>
-                            <Link href="/add-service" className="px-8 py-4 glass rounded-xl font-bold text-white hover:bg-white/10 transition-all w-full sm:w-auto backdrop-blur-md">
-                                List Your Service
-                            </Link>
-                        </div>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                <Link href="/services" className="px-8 py-4 gradient-bg rounded-xl font-bold text-white hover-glow flex items-center gap-2 transition-all w-full sm:w-auto shadow-xl">
+                                    Browse Services <ArrowRight className="w-5 h-5" />
+                                </Link>
+                                <Link href="/add-service" className="px-8 py-4 glass rounded-xl font-bold text-white hover:bg-white/10 transition-all w-full sm:w-auto backdrop-blur-md">
+                                    List Your Service
+                                </Link>
+                            </div>
 
-                        {/* Slide Indicators */}
-                        <div className="flex justify-center gap-2 mt-12">
-                            {slides.map((_, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setCurrentSlide(idx)}
-                                    className={`w-12 h-1.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-blue-500 w-16' : 'bg-white/20'}`}
-                                />
-                            ))}
-                        </div>
-                    </motion.div>
+                            {/* Slide Indicators */}
+                            <div className="flex justify-center gap-2 mt-12">
+                                {slides.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentSlide(idx)}
+                                        className={`w-12 h-1.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-blue-500 w-16' : 'bg-white/20'}`}
+                                    />
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             </section>
 

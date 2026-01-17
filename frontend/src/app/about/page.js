@@ -5,6 +5,14 @@ import { Users, Target, Award, Heart, Shield, Zap } from 'lucide-react';
 import Loading from '@/components/Loading';
 
 const AboutPage = () => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Hero Section */}

@@ -7,6 +7,7 @@ import { API_URL } from '@/lib/api';
 
 
 const ServicesPage = () => {
+    const [mounted, setMounted] = useState(false);
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,7 @@ const ServicesPage = () => {
     const itemsPerPage = 9;
 
     useEffect(() => {
+        setMounted(true);
         const fetchServices = async () => {
             try {
                 const res = await fetch(`${API_URL}/services`);
@@ -70,6 +72,8 @@ const ServicesPage = () => {
     const activeFiltersCount = (priceRange[0] !== 0 || priceRange[1] !== 5000 ? 1 : 0) +
         (minRating > 0 ? 1 : 0) +
         (sortBy !== 'default' ? 1 : 0);
+
+    if (!mounted) return null;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

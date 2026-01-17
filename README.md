@@ -3,8 +3,8 @@
 Fixora is a premium service marketplace application built with **Next.js 16 (App Router)** and **Express.js**. It connects local professionals with customers for various home services like electrical, plumbing, cleaning, and more.
 
 ## 🚀 Live Demo
-- **Frontend:** [https://fixora-market.vercel.app](https://fixora-market.vercel.app) (Replace with your actual Vercel link)
-- **Backend:** [https://fixora-backend.onrender.com](https://fixora-backend.onrender.com) (Replace with your actual Backend link)
+- **Frontend:** [https://fixora-sumi-akter.vercel.app](https://fixora-pxuzkfaty-sumi-akters-projects.vercel.app)
+- **Backend:** [https://fixora-api.vercel.app](https://fixora-api.vercel.app)
 
 ## 🔑 Mock Login Credentials
 Use these credentials to test the protected features:

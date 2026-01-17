@@ -9,11 +9,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://fixora-sumiwdcse-8941-sumi-akters-projects.vercel.app',
+        /\.vercel\.app$/ // matches all vercel subdomains
+    ],
     credentials: true
 }));
 app.use(cookieParser());
 app.use(bodyParser.json());
+
+// Root route for health check
+app.get('/', (req, res) => {
+    res.send('Fixora API is running successfully!');
+});
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {

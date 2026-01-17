@@ -12,6 +12,7 @@ import { API_URL } from '@/lib/api';
 const ServiceDetailsPage = () => {
     const { id } = useParams();
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
     const [service, setService] = useState(null);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('default'); // 'default', 'booking', 'chat'
@@ -20,6 +21,10 @@ const ServiceDetailsPage = () => {
     const [messages, setMessages] = useState([
         { id: 1, text: "Hi there! How can I help you today?", sender: 'pro' }
     ]);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleBooking = () => {
         toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
@@ -65,6 +70,8 @@ const ServiceDetailsPage = () => {
 
         fetchService();
     }, [id]);
+
+    if (!mounted) return null;
 
     if (loading) return (
         <div className="max-w-7xl mx-auto px-4 py-20 text-center">
