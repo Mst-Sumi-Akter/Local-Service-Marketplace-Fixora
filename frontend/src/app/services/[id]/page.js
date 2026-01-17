@@ -6,6 +6,8 @@ import {
     MessageSquare, Calendar, Share2, Heart, CreditCard, Wallet, Banknote, X
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const ServiceDetailsPage = () => {
     const { id } = useParams();
@@ -48,7 +50,8 @@ const ServiceDetailsPage = () => {
     useEffect(() => {
         const fetchService = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/services/${id}`);
+                const res = await fetch(`${API_URL}/services/${id}`);
+
                 if (!res.ok) throw new Error("Service not found");
                 const data = await res.json();
                 setService(data);

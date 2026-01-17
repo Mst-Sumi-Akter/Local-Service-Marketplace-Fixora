@@ -5,17 +5,23 @@ import {
     ChevronRight, LogOut, Star
 } from 'lucide-react';
 import Link from 'next/link';
-import { destroyCookie } from 'nookies';
+import { destroyCookie, parseCookies } from 'nookies';
+
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const ProviderDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [providerName, setProviderName] = useState('Provider');
+
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('http://localhost:5000/provider/stats');
+                const res = await fetch(`${API_URL}/provider/stats`);
+
                 if (res.ok) {
                     const data = await res.json();
                     setStats(data);
@@ -28,8 +34,18 @@ const ProviderDashboard = () => {
             }
         };
 
+        const cookies = parseCookies();
+        setProviderName(cookies.user_name || 'Provider');
         fetchStats();
+
+        // Prevent double scrollbar
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, []);
+
+
 
     const handleLogout = () => {
         destroyCookie(null, 'auth_token');
@@ -47,7 +63,8 @@ const ProviderDashboard = () => {
     }
 
     return (
-        <div className="flex h-screen bg-[#0f172a] -mt-24 pt-24 overflow-hidden">
+        <div className="fixed inset-0 z-0 flex bg-[#0f172a] pt-16 overflow-hidden">
+
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 hidden md:flex flex-col bg-[#0f172a]/50 glass">
                 <div className="p-6">
@@ -94,8 +111,9 @@ const ProviderDashboard = () => {
                 <header className="sticky top-0 z-20 glass border-b border-white/10 p-6 flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-white">Dashboard Overview</h1>
-                        <p className="text-sm text-slate-400">Welcome back, Sparky Solutions!</p>
+                        <p className="text-sm text-slate-400">Welcome back, {providerName}!</p>
                     </div>
+
 
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-2">
@@ -119,7 +137,7 @@ const ProviderDashboard = () => {
                             { label: 'Total Revenue', value: `৳${stats?.earnings || 0}`, change: '+12.5%', icon: DollarSign, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
                             { label: 'Active Jobs', value: stats?.activeJobs || 0, change: '+3', icon: Briefcase, color: 'text-blue-400', bg: 'bg-blue-500/10' },
                             { label: 'Total Clients', value: stats?.totalClients || 0, change: '+24%', icon: Users, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                            { label: 'Avg Rating', value: '4.9', change: '+0.2', icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+                            { label: 'Avg Rating', value: stats?.avgRating || '4.9', change: '+0.2', icon: Star, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
                         ].map((stat, i) => (
                             <div key={i} className="glass p-6 rounded-3xl border-white/5 relative overflow-hidden group hover:bg-white/5 transition-all">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/5 to-transparent rounded-bl-3xl -mr-4 -mt-4 group-hover:scale-110 transition-transform"></div>
@@ -207,7 +225,7 @@ const ProviderDashboard = () => {
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold">
-                                                        {order.customer.charAt(0)}
+                                                        {order.customer?.charAt(0) || 'C'}
                                                     </div>
                                                     <span className="text-sm font-medium">{order.customer}</span>
                                                 </div>

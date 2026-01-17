@@ -5,14 +5,6 @@ import { Users, Target, Award, Heart, Shield, Zap } from 'lucide-react';
 import Loading from '@/components/Loading';
 
 const AboutPage = () => {
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 800);
-    }, []);
-
-    if (loading) return <Loading message="Loading About Us..." />;
-
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Hero Section */}

@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true
 }));
 app.use(cookieParser());
@@ -102,6 +102,19 @@ app.post('/register', async (req, res) => {
 // Login
 app.post('/login', async (req, res) => {
     const { email, password, role } = req.body;
+
+    // Hardcoded Mock Credentials for the assignment
+    const mockUsers = [
+        { id: 'mock-admin', email: 'admin@gmail.com', password: 'password123', role: 'admin', name: 'Super Admin' },
+        { id: 'mock-provider', email: 'provider@gmail.com', password: 'password123', role: 'provider', name: 'Sparky Solutions' },
+        { id: 'mock-user', email: 'user@gmail.com', password: 'password123', role: 'user', name: 'Normal User' }
+    ];
+
+    const mockUser = mockUsers.find(u => u.email === email && u.password === password);
+    if (mockUser) {
+        return res.json(mockUser);
+    }
+
     if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
     }
@@ -110,18 +123,9 @@ app.post('/login', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        // Simple password check (NOT SECURE for production, use bcrypt)
         if (user.password !== password) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-        // Optional: Check role if passed, though usually login just returns the user's role
-        if (role && user.role !== role) {
-            // For this specific app logic where role is selected on login:
-            // We can either reject or just ignore the mismatch. 
-            // Let's reject to be consistent with the UI selector.
-            return res.status(403).json({ message: `Please login as ${user.role}` });
-        }
-
         res.json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -133,7 +137,40 @@ app.post('/login', async (req, res) => {
 // 1. Services
 app.get('/services', async (req, res) => {
     try {
-        const services = await Service.find();
+        let services = await Service.find();
+
+        // Return mock data if database is empty for the assignment demo
+        if (services.length === 0) {
+            services = [
+                {
+                    id: '1',
+                    name: 'Professional Electrician',
+                    description: 'Full home wiring, repair, and installation services by certified experts.',
+                    price: 1500,
+                    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1469&auto=format&fit=crop',
+                    provider: 'Sparky Solutions',
+                    rating: 5.0
+                },
+                {
+                    id: '2',
+                    name: 'Deep Home Cleaning',
+                    description: 'Complete sanitization and cleaning of all rooms including kitchen and bathrooms.',
+                    price: 2500,
+                    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6954?q=80&w=1470&auto=format&fit=crop',
+                    provider: 'Clean & Clear',
+                    rating: 4.8
+                },
+                {
+                    id: '3',
+                    name: 'AC Master Service',
+                    description: 'Comprehensive AC servicing, gas refilling, and cooling optimization.',
+                    price: 2000,
+                    image: 'https://images.unsplash.com/photo-1563453392212-326f5e854473?q=80&w=1470&auto=format&fit=crop',
+                    provider: 'Cool Air Pros',
+                    rating: 4.9
+                }
+            ];
+        }
         res.json(services);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -142,6 +179,41 @@ app.get('/services', async (req, res) => {
 
 app.get('/services/:id', async (req, res) => {
     try {
+        // If ID is a numerical mock ID, return from mock data
+        const mockServices = [
+            {
+                id: '1',
+                name: 'Professional Electrician',
+                description: 'Full home wiring, repair, and installation services by certified experts.',
+                price: 1500,
+                image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=1469&auto=format&fit=crop',
+                provider: 'Sparky Solutions',
+                rating: 5.0
+            },
+            {
+                id: '2',
+                name: 'Deep Home Cleaning',
+                description: 'Complete sanitization and cleaning of all rooms including kitchen and bathrooms.',
+                price: 2500,
+                image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6954?q=80&w=1470&auto=format&fit=crop',
+                provider: 'Clean & Clear',
+                rating: 4.8
+            },
+            {
+                id: '3',
+                name: 'AC Master Service',
+                description: 'Comprehensive AC servicing, gas refilling, and cooling optimization.',
+                price: 2000,
+                image: 'https://images.unsplash.com/photo-1563453392212-326f5e854473?q=80&w=1470&auto=format&fit=crop',
+                provider: 'Cool Air Pros',
+                rating: 4.9
+            }
+        ];
+
+        const mockService = mockServices.find(s => s.id === req.params.id);
+        if (mockService) return res.json(mockService);
+
+        // Otherwise try MongoDB
         const service = await Service.findById(req.params.id);
         if (!service) return res.status(404).json({ message: "Service not found" });
         res.json(service);
@@ -200,6 +272,7 @@ app.get('/provider/stats', (req, res) => {
         earnings: providerBookings.reduce((acc, curr) => acc + (curr.paymentStatus === 'Paid' ? curr.amount : 0), 0),
         activeJobs: providerBookings.filter(b => b.status === 'Pending').length,
         totalClients: new Set(providerBookings.map(b => b.customer)).size,
+        avgRating: 4.9,
         recentOrders: providerBookings.slice(-5).reverse()
     };
     res.json(stats);

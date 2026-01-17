@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Search, Star, ArrowRight, Filter, MapPin, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { API_URL } from '@/lib/api';
+
 
 const ServicesPage = () => {
     const [services, setServices] = useState([]);
@@ -20,7 +22,8 @@ const ServicesPage = () => {
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                const res = await fetch('http://localhost:5000/services');
+                const res = await fetch(`${API_URL}/services`);
+
                 const data = await res.json();
                 setServices(data);
             } catch (error) {

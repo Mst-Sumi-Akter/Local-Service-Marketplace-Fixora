@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { destroyCookie } from 'nookies';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -13,7 +15,8 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('http://localhost:5000/admin/stats');
+                const res = await fetch(`${API_URL}/admin/stats`);
+
                 if (res.ok) {
                     const data = await res.json();
                     setStats(data);
@@ -27,7 +30,14 @@ const AdminDashboard = () => {
         };
 
         fetchStats();
+
+        // Prevent double scrollbar
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, []);
+
 
     const handleLogout = () => {
         destroyCookie(null, 'auth_token');
@@ -45,7 +55,8 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="flex h-screen bg-[#0f172a] -mt-24 pt-24 overflow-hidden">
+        <div className="fixed inset-0 z-0 flex bg-[#0f172a] pt-16 overflow-hidden">
+
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 hidden md:flex flex-col bg-[#0f172a]/50 glass">
                 <div className="p-6">
@@ -161,7 +172,7 @@ const AdminDashboard = () => {
                                             <td className="px-6 py-4 font-medium text-slate-200">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-indigo-900 flex items-center justify-center text-xs font-bold">
-                                                        {user.name.charAt(0)}
+                                                        {user.name?.charAt(0) || 'U'}
                                                     </div>
                                                     {user.name}
                                                 </div>

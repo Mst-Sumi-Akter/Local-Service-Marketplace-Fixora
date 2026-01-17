@@ -1,66 +1,128 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import {
     ArrowRight, Star, Users, Shield, Zap,
-    Search, MapPin, Camera
+    Search, MapPin, Camera, Droplets, Paintbrush, Sparkles
 } from 'lucide-react';
+
 import { toast } from 'sonner';
 
 const LandingPage = () => {
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const slides = [
+        {
+            image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2000&auto=format&fit=crop",
+            title: "Expert Plumbing",
+            desc: "24/7 emergency support for leaks, clogs, and full installations."
+        },
+        {
+            image: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=2000&auto=format&fit=crop",
+            title: "Expert Electricians",
+            desc: "Professional wiring and electrical repairs for your home."
+        },
+        {
+            image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2000&auto=format&fit=crop",
+            title: "Professional Painting",
+            desc: "Transform your space with our expert color consultants and painters."
+        }
+    ];
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, []);
+
     return (
         <div className="flex flex-col">
-            {/* 1. Hero Section */}
-            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-                    <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-purple-600/20 rounded-full blur-[120px] animate-pulse delay-700"></div>
+            {/* 1. Hero Section - Reverted to Center Aligned Slider */}
+            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20 bg-slate-950">
+                {/* Image Slider Background */}
+                <div className="absolute inset-0 z-0 text-center">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentSlide}
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 1.5 }}
+                            className="absolute inset-0"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950 z-10"></div>
+                            <img
+                                src={slides[currentSlide].image}
+                                alt="Service background"
+                                className="w-full h-full object-cover"
+                            />
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 text-center">
                     <motion.div
+                        key={currentSlide + '-content'}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
                         <span className="px-4 py-2 rounded-full glass text-blue-400 text-sm font-medium mb-6 inline-block">
-                            #1 Marketplace for Local Pros
+                            #{currentSlide + 1} Local Experts in {slides[currentSlide].title}
                         </span>
-                        <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
+                        <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight text-white">
                             Find the Perfect <br />
                             <span className="gradient-text">Local Service</span> Ready to Help
                         </h1>
-                        <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                            Fixora connects you with verified experts for everything from emergency plumbing to professional home cleaning. Quality guaranteed.
+                        <p className="text-xl text-slate-200 shadow-sm max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+                            {slides[currentSlide].desc} Fixora connects you with verified experts for everything you need.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Link href="/services" className="px-8 py-4 gradient-bg rounded-xl font-bold text-white hover-glow flex items-center gap-2 transition-all w-full sm:w-auto">
+                            <Link href="/services" className="px-8 py-4 gradient-bg rounded-xl font-bold text-white hover-glow flex items-center gap-2 transition-all w-full sm:w-auto shadow-xl">
                                 Browse Services <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <Link href="/add-service" className="px-8 py-4 glass rounded-xl font-bold text-white hover:bg-white/10 transition-all w-full sm:w-auto">
+                            <Link href="/add-service" className="px-8 py-4 glass rounded-xl font-bold text-white hover:bg-white/10 transition-all w-full sm:w-auto backdrop-blur-md">
                                 List Your Service
                             </Link>
+                        </div>
+
+                        {/* Slide Indicators */}
+                        <div className="flex justify-center gap-2 mt-12">
+                            {slides.map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setCurrentSlide(idx)}
+                                    className={`w-12 h-1.5 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-blue-500 w-16' : 'bg-white/20'}`}
+                                />
+                            ))}
                         </div>
                     </motion.div>
                 </div>
             </section>
 
+
             {/* 2. Services Overview */}
             <section className="py-24 bg-[#0b0f1a]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">Popular Service Categories</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            <span className="text-white">Popular Service</span>{' '}
+                            <span className="gradient-text">Categories</span>
+                        </h2>
                         <p className="text-slate-300">Whatever you need, we have an expert for it.</p>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {[
                             { name: 'Electrical', icon: Zap, count: '120+ Pros', color: 'text-yellow-400' },
-                            { name: 'Plumbing', icon: MapPin, count: '85+ Pros', color: 'text-blue-400' },
-                            { name: 'Cleaning', icon: Search, count: '200+ Pros', color: 'text-emerald-400' },
-                            { name: 'Painting', icon: Camera, count: '45+ Pros', color: 'text-purple-400' },
+                            { name: 'Plumbing', icon: Droplets, count: '85+ Pros', color: 'text-blue-400' },
+                            { name: 'Cleaning', icon: Sparkles, count: '200+ Pros', color: 'text-emerald-400' },
+                            { name: 'Painting', icon: Paintbrush, count: '45+ Pros', color: 'text-purple-400' },
+
                         ].map((cat, idx) => (
                             <motion.div
                                 key={idx}
@@ -80,8 +142,12 @@ const LandingPage = () => {
             <section className="py-24 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-20">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-                        <p className="text-slate-300">Simple 3-step process to get things fixed</p>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            <span className="text-white">How It</span>{' '}
+                            <span className="gradient-text">Works</span>
+                        </h2>
+                        <Link href="/how-it-works" className="text-blue-400 hover:text-blue-300 text-sm font-medium">Learn More About Our Process</Link>
+
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-12 relative">
@@ -101,6 +167,13 @@ const LandingPage = () => {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-16 text-center">
+                        <Link href="/services" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl font-bold text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all">
+                            Browse Services Now <ArrowRight className="w-5 h-5" />
+                        </Link>
+                    </div>
+
                 </div>
             </section>
 
@@ -191,7 +264,10 @@ const LandingPage = () => {
             <section className="py-24 bg-[#0b0f1a]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Users Say</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            <span className="text-white">What Our</span>{' '}
+                            <span className="gradient-text">Users Say</span>
+                        </h2>
                         <p className="text-slate-300">Join thousands of happy customers today.</p>
                     </div>
 
@@ -214,16 +290,28 @@ const LandingPage = () => {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-16 text-center">
+                        <Link href="/services" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-bold text-white hover:scale-105 hover:shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all">
+                            Find Your Expert <ArrowRight className="w-5 h-5" />
+                        </Link>
+                    </div>
+
                 </div>
             </section>
 
             {/* 7. Contact / Newsletter */}
             <section className="py-24">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="gradient-bg rounded-[40px] p-12 md:p-20 text-center relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                    <div className="bg-slate-900/80 glass rounded-[48px] p-12 md:p-20 text-center relative overflow-hidden border border-white/5">
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px] -mr-40 -mt-40"></div>
+                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px] -ml-40 -mb-40"></div>
+
                         <div className="relative z-10">
-                            <h2 className="text-3xl md:text-5xl font-black mb-6 text-white">Subscribe to Our Newsletter</h2>
+                            <h2 className="text-3xl md:text-5xl font-black mb-6">
+                                <span className="text-white">Subscribe to</span>{' '}
+                                <span className="gradient-text">Our Newsletter</span>
+                            </h2>
                             <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">
                                 Get weekly tips on home maintenance and exclusive discounts on top-rated services.
                             </p>
@@ -231,11 +319,11 @@ const LandingPage = () => {
                                 <input
                                     type="email"
                                     placeholder="Enter your email"
-                                    className="flex-1 px-6 py-4 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="flex-1 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-500"
                                 />
                                 <button
                                     onClick={() => toast.success("Subscribed successfully! Welcome to our newsletter.")}
-                                    className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all"
+                                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold hover:shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all"
                                 >
                                     Subscribe Now
                                 </button>

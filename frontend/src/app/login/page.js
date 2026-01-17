@@ -1,26 +1,38 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { setCookie } from 'nookies';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, LogIn, AlertCircle, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [role, setRole] = useState('user');
+
+    const [role, setRole] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!role) {
+            toast.error("Please select a role first!");
+            return;
+        }
+
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/login', {
+            const res = await fetch(`${API_URL}/login`, {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,12 +65,7 @@ const LoginPage = () => {
             });
 
             toast.success(`Logged in as ${data.name}`);
-
-            if (data.role === 'provider' || data.role === 'admin') {
-                router.push('/dashboard'); // Assuming dashboard exists or revert to /add-service if requested, existing logic said /add-service for provider/admin
-            } else {
-                router.push('/');
-            }
+            router.push('/services');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -109,7 +116,9 @@ const LoginPage = () => {
                                     }}
                                     className="block w-full pl-12 pr-4 py-4 glass border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer bg-[#1e293b]"
                                 >
+                                    <option value="" disabled className="bg-slate-900 text-white font-bold">--- Select Your Role ---</option>
                                     <option value="user" className="bg-slate-900 text-white">Visitor / Normal User</option>
+
                                     <option value="provider" className="bg-slate-900 text-white">Service Provider</option>
                                     <option value="admin" className="bg-slate-900 text-white">Super Admin</option>
                                 </select>

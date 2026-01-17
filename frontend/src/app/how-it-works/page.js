@@ -6,14 +6,6 @@ import { Search, UserCheck, Calendar, CheckCircle, ArrowRight, Sparkles } from '
 import Loading from '@/components/Loading';
 
 const HowItWorksPage = () => {
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 800);
-    }, []);
-
-    if (loading) return <Loading message="Loading How It Works..." />;
-
     const steps = [
         {
             icon: Search,

@@ -72,7 +72,7 @@ const Footer = () => {
 
                 <div className="border-t border-white/5 pt-8 text-center">
                     <p className="text-slate-400 text-xs">
-                        © {new Date().getFullYear()} Fixora Marketplace. All rights reserved. Made with ❤️ for Local Providers.
+                        © {new Date().getFullYear()} Fixora Marketplace. All rights reserved. Made with love for Local Providers.
                     </p>
                 </div>
             </div>

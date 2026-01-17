@@ -6,14 +6,9 @@ import { toast } from 'sonner';
 import Loading from '@/components/Loading';
 
 const ContactPage = () => {
-    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
     const [submitted, setSubmitted] = useState(false);
     const [sending, setSending] = useState(false);
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 800);
-    }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -26,8 +21,6 @@ const ContactPage = () => {
             setTimeout(() => setSubmitted(false), 5000);
         }, 1500);
     };
-
-    if (loading) return <Loading message="Loading Contact Page..." />;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

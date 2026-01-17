@@ -3,17 +3,23 @@ import {
     ShoppingBag, Heart, Star, Clock, Calendar,
     User, Settings, LogOut, ChevronRight, MapPin, Bell
 } from 'lucide-react';
-import { destroyCookie } from 'nookies';
+import { destroyCookie, parseCookies } from 'nookies';
+
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const UserDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [userName, setUserName] = useState('User');
+
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('http://localhost:5000/user/stats');
+                const res = await fetch(`${API_URL}/user/stats`);
+
                 if (res.ok) {
                     const data = await res.json();
                     setStats(data);
@@ -26,8 +32,18 @@ const UserDashboard = () => {
             }
         };
 
+        const cookies = parseCookies();
+        setUserName(cookies.user_name || 'User');
         fetchStats();
+
+        // Prevent double scrollbar
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, []);
+
+
 
     const handleLogout = () => {
         destroyCookie(null, 'auth_token');
@@ -47,7 +63,8 @@ const UserDashboard = () => {
     const upcomingBooking = stats?.bookingHistory?.find(b => b.status === 'Pending');
 
     return (
-        <div className="flex h-screen bg-[#0f172a] -mt-24 pt-24 overflow-hidden">
+        <div className="fixed inset-0 z-0 flex bg-[#0f172a] pt-16 overflow-hidden">
+
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 hidden md:flex flex-col bg-[#0f172a]/50 glass">
                 <div className="p-6">
@@ -87,9 +104,10 @@ const UserDashboard = () => {
                 {/* Topbar */}
                 <header className="sticky top-0 z-20 glass border-b border-white/10 p-6 flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Hello, User!</h1>
+                        <h1 className="text-2xl font-bold text-white">Hello, {userName}!</h1>
                         <p className="text-sm text-slate-400">Here is what's happening with your account.</p>
                     </div>
+
 
                     <div className="flex items-center gap-4">
                         <button className="p-2 relative bg-white/5 rounded-full hover:bg-white/10 transition-all border border-white/10">

@@ -6,14 +6,6 @@ import { toast } from 'sonner';
 import Loading from '@/components/Loading';
 
 const ImpactPage = () => {
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 800);
-    }, []);
-
-    if (loading) return <Loading message="Loading Impact Stories..." />;
-
     return (
         <div className="min-h-screen relative overflow-hidden bg-[#0a0a0f]">
             {/* Background Effects */}

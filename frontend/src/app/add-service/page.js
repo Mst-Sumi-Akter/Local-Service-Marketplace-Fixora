@@ -7,6 +7,8 @@ import {
     DollarSign, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
+
 
 const AddServicePage = () => {
     const router = useRouter();
@@ -30,12 +32,6 @@ const AddServicePage = () => {
             return;
         }
 
-        if (role !== 'provider' && role !== 'admin') {
-            toast.error("Access Denied: Only Service Providers can add services.");
-            router.push('/');
-            return;
-        }
-
         setIsAuthorized(true);
     }, []);
 
@@ -45,7 +41,8 @@ const AddServicePage = () => {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5000/services', {
+            const res = await fetch(`${API_URL}/services`, {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
